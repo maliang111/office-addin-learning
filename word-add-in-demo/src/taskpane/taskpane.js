@@ -14,8 +14,48 @@ Office.onReady((info) => {
 
   // Assign event handlers and other initialization logic.
     document.getElementById("insert-paragraph").onclick = insertParagraph;
+
+    document.getElementById("apply-style").onclick = applyStyle;
+
+    document.getElementById("change-font").onclick = changeFont;
   }
 });
+
+async function changeFont() {
+  await Word.run(async (context) => {
+
+    const secondParagraph = context.document.body.paragraphs.getFirst().getNext();
+    secondParagraph.font.set({
+            name: "Courier New",
+            bold: true,
+            size: 18
+        });
+
+      await context.sync();
+  })
+  .catch(function (error) {
+      console.log("Error: " + error);
+      if (error instanceof OfficeExtension.Error) {
+          console.log("Debug info: " + JSON.stringify(error.debugInfo));
+      }
+  });
+}
+
+async function applyStyle() {
+  await Word.run(async (context) => {
+
+      // TODO1: Queue commands to style text.
+      const firstParagraph = context.document.body.paragraphs.getFirst();
+      firstParagraph.styleBuiltIn = Word.Style.intenseReference;
+      await context.sync();
+  })
+  .catch(function (error) {
+      console.log("Error: " + error);
+      if (error instanceof OfficeExtension.Error) {
+          console.log("Debug info: " + JSON.stringify(error.debugInfo));
+      }
+  });
+}
 
 async function insertParagraph() {
   await Word.run(async (context) => {
@@ -23,7 +63,7 @@ async function insertParagraph() {
     // TODO1: Queue commands to insert a paragraph into the document.
     const docBody = context.document.body;
     docBody.insertParagraph("Office has several versions, including Office 2016, Microsoft 365 subscription, and Office on the web.",
-        "Start");
+        Word.InsertLocation.end);
     await context.sync();
   })
       .catch(function (error) {
