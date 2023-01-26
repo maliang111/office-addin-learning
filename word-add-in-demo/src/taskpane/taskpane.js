@@ -4,6 +4,7 @@
  */
 
 /* global document, Office, Word */
+import {base64Image} from '../base64Image'
 
 Office.onReady((info) => {
   if (info.host === Office.HostType.Word) {
@@ -22,9 +23,64 @@ Office.onReady((info) => {
 
     document.getElementById("insert-text-outside-range").onclick = insertTextBeforeRange;
     document.getElementById("replace-text").onclick = replaceText;
-  
+
+    document.getElementById("insert-image").onclick = insertImage;
+    document.getElementById("insert-html").onclick = insertHTML;
+    document.getElementById("insert-table").onclick = insertTable;
   }
 });
+
+async function insertTable() {
+  await Word.run(async (context) => {
+
+      const secondParagraph = context.document.body.paragraphs.getFirst().getNext();
+
+      const tableData = [
+        ["Name", "ID", "Birth City"],
+        ["Bob", "434", "Chicago"],
+        ["Sue", "719", "Havana"],
+      ];
+      secondParagraph.insertTable(3, 3, "After", tableData);
+      await context.sync();
+  })
+  .catch(function (error) {
+      console.log("Error: " + error);
+      if (error instanceof OfficeExtension.Error) {
+          console.log("Debug info: " + JSON.stringify(error.debugInfo));
+      }
+  });
+}
+
+async function insertHTML() {
+  await Word.run(async (context) => {
+
+      const blankParagraph = context.document.body.paragraphs.getLast().insertParagraph("", "After");
+      blankParagraph.insertHtml('<p style="font-family: verdana;">Inserted HTML.</p><p>Another paragraph</p>', "End");
+
+      await context.sync();
+  })
+  .catch(function (error) {
+      console.log("Error: " + error);
+      if (error instanceof OfficeExtension.Error) {
+          console.log("Debug info: " + JSON.stringify(error.debugInfo));
+      }
+  });
+}
+
+async function insertImage() {
+  await Word.run(async (context) => {
+
+      context.document.body.insertInlinePictureFromBase64(base64Image, "End");
+
+      await context.sync();
+  })
+  .catch(function (error) {
+      console.log("Error: " + error);
+      if (error instanceof OfficeExtension.Error) {
+          console.log("Debug info: " + JSON.stringify(error.debugInfo));
+      }
+  });
+}
 
 async function replaceText() {
   await Word.run(async (context) => {
