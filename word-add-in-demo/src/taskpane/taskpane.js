@@ -27,8 +27,48 @@ Office.onReady((info) => {
     document.getElementById("insert-image").onclick = insertImage;
     document.getElementById("insert-html").onclick = insertHTML;
     document.getElementById("insert-table").onclick = insertTable;
+
+    document.getElementById("create-content-control").onclick = createContentControl;
+  
+    document.getElementById("replace-content-in-control").onclick = replaceContentInControl;
   }
 });
+
+async function replaceContentInControl() {
+  await Word.run(async (context) => {
+
+      const serviceNameContentControl = context.document.contentControls.getByTag("serviceName").getFirst();
+      serviceNameContentControl.insertText("Fabrikam Online Productivity Suite", "Replace");
+
+      await context.sync();
+  })
+  .catch(function (error) {
+      console.log("Error: " + error);
+      if (error instanceof OfficeExtension.Error) {
+          console.log("Debug info: " + JSON.stringify(error.debugInfo));
+      }
+  });
+}
+
+async function createContentControl() {
+  await Word.run(async (context) => {
+
+      const serviceNameRange = context.document.getSelection();
+      const serviceNameContentControl = serviceNameRange.insertContentControl();
+      serviceNameContentControl.title = "Service Name";
+      serviceNameContentControl.tag = "serviceName";
+      serviceNameContentControl.appearance = "Tags";
+      serviceNameContentControl.color = "blue";
+
+      await context.sync();
+  })
+  .catch(function (error) {
+      console.log("Error: " + error);
+      if (error instanceof OfficeExtension.Error) {
+          console.log("Debug info: " + JSON.stringify(error.debugInfo));
+      }
+  });
+}
 
 async function insertTable() {
   await Word.run(async (context) => {
